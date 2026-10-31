@@ -1,8 +1,3 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Burbuja</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -206,10 +201,6 @@ button:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline
   .spark{display:none}
 }
 </style>
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}</style>
-</head>
-<body>
-
 
 <div class="app" id="app">
 
@@ -365,9 +356,9 @@ const LOCKED = [
   {id:"verbos",es:"Verbos",en:"Verbs"}
 ];
 const LEVELS = [
-  {pairs:6,onScreen:4,speed:[14,24],fuse:16,decoys:0},
-  {pairs:6,onScreen:5,speed:[26,40],fuse:14,decoys:2},
-  {pairs:6,onScreen:6,speed:[36,52],fuse:12,decoys:3}
+  {pairs:6,onScreen:4,speed:[12,20],fuse:24,decoys:0},
+  {pairs:6,onScreen:5,speed:[24,36],fuse:20,decoys:2},
+  {pairs:6,onScreen:6,speed:[34,48],fuse:16,decoys:3}
 ];
 const LIVES = 3;
 
@@ -493,7 +484,9 @@ const sfx = {
   over:()=>{[392,330,262].forEach((f,i)=>setTimeout(()=>tone(f,f*.98,.22,"triangle",.12),i*140))}
 };
 function say(word,lang){
-  if(!store.sound||!("speechSynthesis" in window)) return;
+  if(!store.sound) return;
+  if(window.BurbujaTTS){ try{ BurbujaTTS.speak(word, VOICE[lang]); }catch(e){} return; }
+  if(!("speechSynthesis" in window)) return;
   try{ const u=new SpeechSynthesisUtterance(word); u.lang=VOICE[lang]; u.rate=.9; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){}
 }
 const ICON_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg>';
@@ -608,9 +601,16 @@ function fill(){
   if(!G||G.paused||G.over) return;
   const live=new Set(G.bubbles.filter(b=>!b.dying&&!b.decoy).map(b=>b.pid)).size;
   let need=Math.min(maxOnScreen()-live,G.queue.length);
+  const opening=live===0, g=G; let n=0;   /* empty screen: bring partners in a bit quicker */
   while(need-->0){
-    const p=G.queue.shift(); p.deadline=now()+cfg().fuse*1000; p.fuse=cfg().fuse*1000;
-    const first=spawn(p,G.tg); spawn(p,G.hl,false,first);
+    /* pairs that appear together get staggered timers, so they burst one at a time */
+    const p=G.queue.shift(); p.fuse=(cfg().fuse+n*3)*1000; p.deadline=now()+p.fuse; n++;
+    /* the two halves never appear together and either can come first,
+       so a new bubble tells you nothing about which one is its partner */
+    const firstLang=Math.random()<.5?G.tg:G.hl, secondLang=firstLang===G.tg?G.hl:G.tg;
+    const first=spawn(p,firstLang);
+    const gap=opening?800+Math.random()*2400:1500+Math.random()*4000;
+    setTimeout(()=>{ if(G===g && !g.over && g.bubbles.includes(first)) spawn(p,secondLang,false,first); },gap);
   }
   const liveDecoys=G.bubbles.filter(b=>b.decoy&&!b.dying).length;
   if(G.levelLeft>0){
@@ -646,7 +646,8 @@ function spawn(p,lang,decoy,partner){
   el.setAttribute("aria-label",(lang==="es"?t("spanish"):t("english"))+": "+text);
   el.setAttribute("lang",lang);
   const [s0,s1]=cfg().speed; const speed=reduceMotion?0:(s0+Math.random()*(s1-s0)); const ang=Math.random()*Math.PI*2;
-  const b={pid:p.id,pair:p,lang,text,el,x,y,r,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,base:speed,dying:false,decoy:!!decoy,band:""};
+  /* both halves burst at the pair's deadline; a late arrival just has a shorter ring */
+  const b={pid:p.id,pair:p,lang,text,el,x,y,r,vx:Math.cos(ang)*speed,vy:Math.sin(ang)*speed,base:speed,dying:false,decoy:!!decoy,band:"",fuse:Math.max(1000,p.deadline-now())};
   el.addEventListener("click",()=>tap(b));
   el.style.transform=`translate(${x-r}px,${y-r}px)`;
   el.animate([{opacity:0,scale:.4},{opacity:1,scale:1}],{duration:reduceMotion?1:320,easing:"cubic-bezier(.2,1.4,.4,1)"});
@@ -686,7 +687,7 @@ function step(ts){
   for(const b of B){
     if(b.dying) continue;
     b.el.style.transform=`translate(${b.x-b.r}px,${b.y-b.r}px)`;
-    const p=Math.max(0,(b.pair.deadline-n)/b.pair.fuse);
+    const p=Math.max(0,(b.pair.deadline-n)/b.fuse);
     b.el.style.setProperty("--p",p.toFixed(3));
     const band=p<.25?"low":p<.5?"mid":"";
     if(band!==b.band){ b.el.classList.remove("low","mid"); if(band) b.el.classList.add(band); b.band=band; }
@@ -822,7 +823,7 @@ function finish(cleared){
   const key=bestKey(G.cat); const prev=store.best[key]||0; const isBest=G.score>prev;
   if(isBest) store.best[key]=G.score;
   save(store);
-  const attempts=G.matched+G.mistakes; const acc=attempts?Math.round(G.matched/attempts*100):100;
+  const attempts=G.matched+G.mistakes+G.timeouts; /* a burst pair counts as a miss */ const acc=attempts?Math.round(G.matched/attempts*100):100;
   const missedList=[...G.missed.values()];
   session.rounds.push({mode:speaks==="en"?"EN→learning Spanish":"ES→learning English",cat:CATS[G.cat]?CATS[G.cat].en:"Mix",cleared,level:G.lvl+1,time:Math.round(time),acc,
     mistakes:G.mistakes,timeouts:G.timeouts,decoyHits:G.decoyHits,best:G.best,score:G.score,missed:missedList.map(p=>p.es+"/"+p.en)});
@@ -846,6 +847,14 @@ $("quitBtn").onclick=()=>{
   if(G && !G.over){ session.rounds.push({mode:speaks==="en"?"EN→learning Spanish":"ES→learning English",cat:CATS[G.cat]?CATS[G.cat].en:"Mix",quit:true,level:G.lvl+1,matched:G.matched,time:Math.round((now()-G.t0)/1000)}); }
   stop(); G=null; clearField();
   renderCats(); show("home");
+};
+
+/* Android back button: returns true if it handled it, false = let the app close */
+window.burbujaBack=function(){
+  if(!$("sheet").hidden){ $("sheetClose").click(); return true; }
+  if(!screens.game.hidden){ $("quitBtn").click(); return true; }
+  if(!screens.end.hidden){ $("menuBtn").click(); return true; }
+  return false;
 };
 
 /* ---------- Feedback ---------- */
@@ -909,6 +918,3 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("sheet").hidd
 applyLang(); show("home");
 })();
 </script>
-
-</body>
-</html>
