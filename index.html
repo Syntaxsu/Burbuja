@@ -68,6 +68,7 @@ button:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline
 }
 .cat:hover{transform:translateY(-2px);border-color:rgba(233,251,248,.4)}
 .cat .big{font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1}
+.cat .big.long{font-size:21px;line-height:1.05}.cat .big.xlong{font-size:19px;line-height:1.05}
 .cat .small{color:var(--foam-dim);font-size:13px}
 .cat .best{margin-top:auto;font-size:12px;color:var(--foam-dim);font-variant-numeric:tabular-nums}
 .cat .best b{color:var(--sun);font-weight:700}
@@ -75,7 +76,8 @@ button:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline
   background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.55),rgba(255,255,255,.05) 45%,transparent 60%),
   conic-gradient(from 200deg,rgba(255,154,118,.35),rgba(205,239,253,.35),rgba(255,212,92,.3),rgba(255,154,118,.35));opacity:.7}
 .cat.locked{opacity:.78}
-.pro{position:absolute;top:12px;right:12px;font-size:11px;font-weight:700;letter-spacing:.08em;background:var(--sun);color:#3d2a00;border-radius:99px;padding:2px 8px}
+.cats-sec{grid-column:1/-1;margin:10px 0 0}
+.pro{position:absolute;bottom:12px;right:12px;font-size:11px;font-weight:700;letter-spacing:.08em;background:var(--sun);color:#3d2a00;border-radius:99px;padding:2px 8px}
 .rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;border-top:1px solid var(--line);padding-top:14px}
 @media (min-width:560px){.rules{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .rule{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--foam-dim);min-width:0}
@@ -315,45 +317,209 @@ button:focus-visible,textarea:focus-visible{outline:3px solid var(--sun);outline
 /* ---------- Word lists (each pair works in both directions) ---------- */
 const CATS = {
   comida:{es:"Comida",en:"Food",words:[
-    ["manzana","apple"],["pan","bread"],["queso","cheese"],["leche","milk"],["huevo","egg"],["arroz","rice"],
-    ["pollo","chicken"],["agua","water"],["naranja","orange"],["pescado","fish"],["mantequilla","butter"],["azúcar","sugar"],
-    ["sal","salt"],["sopa","soup"],["carne","meat"],["uva","grape"],["café","coffee"],["cebolla","onion"],
-    ["ajo","garlic"],["miel","honey"],
-    ["tomate","tomato"],["papa","potato"],["galleta","cookie"],["helado","ice cream"],["jugo","juice"],["pera","pear"],
-    ["zanahoria","carrot"],["aceite","oil"],["harina","flour"],["sandía","watermelon"]]},
+    ["manzana", "apple"],["pan", "bread"],["queso", "cheese"],["leche", "milk"],["huevo", "egg"],["arroz", "rice"],
+    ["pollo", "chicken"],["agua", "water"],["naranja", "orange"],["pescado", "fish"],["mantequilla", "butter"],["azúcar", "sugar"],
+    ["sal", "salt"],["sopa", "soup"],["carne", "meat"],["uva", "grape"],["café", "coffee"],["cebolla", "onion"],
+    ["ajo", "garlic"],["miel", "honey"],["tomate", "tomato"],["papa", "potato"],["galleta", "cookie"],["helado", "ice cream"],
+    ["jugo", "juice"],["pera", "pear"],["zanahoria", "carrot"],["aceite", "oil"],["harina", "flour"],["sandía", "watermelon"],
+    ["fresa", "strawberry"],["plátano", "banana"],["limón", "lemon"],["piña", "pineapple"],["maíz", "corn"],["frijol", "bean"],
+    ["lechuga", "lettuce"],["pepino", "cucumber"],["pastel", "cake"],["chocolate", "chocolate"],["desayuno", "breakfast"],["almuerzo", "lunch"],
+    ["cena", "dinner"],["ensalada", "salad"],["jamón", "ham"],["camarón", "shrimp"],["pimienta", "pepper"],["cereza", "cherry"],
+    ["durazno", "peach"],["aguacate", "avocado"]]},
   animales:{es:"Animales",en:"Animals",words:[
-    ["perro","dog"],["gato","cat"],["caballo","horse"],["vaca","cow"],["pájaro","bird"],["cerdo","pig"],
-    ["oveja","sheep"],["conejo","rabbit"],["ratón","mouse"],["tortuga","turtle"],["mono","monkey"],["oso","bear"],
-    ["león","lion"],["serpiente","snake"],["pato","duck"],["abeja","bee"],["rana","frog"],["caracol","snail"],
-    ["tigre","tiger"],["elefante","elephant"],
-    ["burro","donkey"],["cabra","goat"],["lobo","wolf"],["zorro","fox"],["ballena","whale"],["tiburón","shark"],
-    ["araña","spider"],["mariposa","butterfly"],["hormiga","ant"],["gallina","hen"]]},
+    ["perro", "dog"],["gato", "cat"],["caballo", "horse"],["vaca", "cow"],["pájaro", "bird"],["cerdo", "pig"],
+    ["oveja", "sheep"],["conejo", "rabbit"],["ratón", "mouse"],["tortuga", "turtle"],["mono", "monkey"],["oso", "bear"],
+    ["león", "lion"],["serpiente", "snake"],["pato", "duck"],["abeja", "bee"],["rana", "frog"],["caracol", "snail"],
+    ["tigre", "tiger"],["elefante", "elephant"],["burro", "donkey"],["cabra", "goat"],["lobo", "wolf"],["zorro", "fox"],
+    ["ballena", "whale"],["tiburón", "shark"],["araña", "spider"],["mariposa", "butterfly"],["hormiga", "ant"],["gallina", "hen"],
+    ["gallo", "rooster"],["pavo", "turkey"],["cocodrilo", "crocodile"],["jirafa", "giraffe"],["cebra", "zebra"],["delfín", "dolphin"],
+    ["pulpo", "octopus"],["águila", "eagle"],["búho", "owl"],["loro", "parrot"],["murciélago", "bat"],["venado", "deer"],
+    ["ardilla", "squirrel"],["mosca", "fly"],["cangrejo", "crab"],["pingüino", "penguin"],["camello", "camel"],["canguro", "kangaroo"],
+    ["paloma", "dove"],["gusano", "worm"]]},
   casa:{es:"La casa",en:"Home",words:[
-    ["mesa","table"],["silla","chair"],["cama","bed"],["puerta","door"],["ventana","window"],["cocina","kitchen"],
-    ["baño","bathroom"],["llave","key"],["espejo","mirror"],["lámpara","lamp"],["sofá","sofa"],["pared","wall"],
-    ["piso","floor"],["almohada","pillow"],["cuchara","spoon"],["tenedor","fork"],["plato","plate"],["toalla","towel"],
-    ["cuchillo","knife"],["jabón","soap"],
-    ["jardín","garden"],["cortina","curtain"],["alfombra","rug"],["estufa","stove"],["refrigerador","fridge"],["taza","cup"],
-    ["olla","pot"],["escoba","broom"],["basura","trash"],["escalera","stairs"]]},
+    ["mesa", "table"],["silla", "chair"],["cama", "bed"],["puerta", "door"],["ventana", "window"],["cocina", "kitchen"],
+    ["baño", "bathroom"],["llave", "key"],["espejo", "mirror"],["lámpara", "lamp"],["sofá", "sofa"],["pared", "wall"],
+    ["piso", "floor"],["almohada", "pillow"],["cuchara", "spoon"],["tenedor", "fork"],["plato", "plate"],["toalla", "towel"],
+    ["cuchillo", "knife"],["jabón", "soap"],["jardín", "garden"],["cortina", "curtain"],["alfombra", "rug"],["estufa", "stove"],
+    ["refrigerador", "fridge"],["taza", "cup"],["olla", "pot"],["escoba", "broom"],["basura", "trash"],["escalera", "stairs"],
+    ["techo", "roof"],["sábana", "sheet"],["manta", "blanket"],["colchón", "mattress"],["armario", "closet"],["estante", "shelf"],
+    ["cajón", "drawer"],["ventilador", "fan"],["horno", "oven"],["sartén", "skillet"],["vaso", "glass"],["botella", "bottle"],
+    ["ducha", "shower"],["lavabo", "sink"],["escritorio", "desk"],["vela", "candle"],["sala", "living room"],["garaje", "garage"],
+    ["cerca", "fence"],["cuadro", "picture"]]},
   cuerpo:{es:"El cuerpo",en:"Body",words:[
-    ["cabeza","head"],["ojo","eye"],["nariz","nose"],["boca","mouth"],["oreja","ear"],["mano","hand"],
-    ["pie","foot"],["brazo","arm"],["pierna","leg"],["dedo","finger"],["diente","tooth"],["pelo","hair"],
-    ["cara","face"],["cuello","neck"],["espalda","back"],["rodilla","knee"],["hombro","shoulder"],["lengua","tongue"],
-    ["corazón","heart"],["estómago","stomach"],
-    ["labio","lip"],["uña","fingernail"],["codo","elbow"],["hueso","bone"],["sangre","blood"],["piel","skin"],
-    ["ceja","eyebrow"],["barba","beard"],["frente","forehead"],["tobillo","ankle"]]},
+    ["cabeza", "head"],["ojo", "eye"],["nariz", "nose"],["boca", "mouth"],["oreja", "ear"],["mano", "hand"],
+    ["pie", "foot"],["brazo", "arm"],["pierna", "leg"],["dedo", "finger"],["diente", "tooth"],["pelo", "hair"],
+    ["cara", "face"],["cuello", "neck"],["espalda", "back"],["rodilla", "knee"],["hombro", "shoulder"],["lengua", "tongue"],
+    ["corazón", "heart"],["estómago", "stomach"],["labio", "lip"],["uña", "fingernail"],["codo", "elbow"],["hueso", "bone"],
+    ["sangre", "blood"],["piel", "skin"],["ceja", "eyebrow"],["barba", "beard"],["frente", "forehead"],["tobillo", "ankle"],
+    ["pulgar", "thumb"],["muñeca", "wrist"],["cadera", "hip"],["cintura", "waist"],["pecho", "chest"],["ombligo", "navel"],
+    ["mejilla", "cheek"],["barbilla", "chin"],["pestaña", "eyelash"],["garganta", "throat"],["pulmón", "lung"],["cerebro", "brain"],
+    ["músculo", "muscle"],["columna", "spine"],["palma", "palm"],["talón", "heel"],["costilla", "rib"],["mandíbula", "jaw"],
+    ["bigote", "mustache"],["párpado", "eyelid"]]},
   ropa:{es:"La ropa",en:"Clothes",words:[
-    ["camisa","shirt"],["falda","skirt"],["vestido","dress"],["zapato","shoe"],["calcetín","sock"],["sombrero","hat"],
-    ["abrigo","coat"],["bufanda","scarf"],["guante","glove"],["cinturón","belt"],["bolsillo","pocket"],["botón","button"],
-    ["bota","boot"],["corbata","tie"],["pijama","pajamas"],["gorra","cap"],["reloj","watch"],["anillo","ring"],
-    ["suéter","sweater"],["uniforme","uniform"],
-    ["collar","necklace"],["pulsera","bracelet"],["arete","earring"],["sandalia","sandal"],["bata","robe"],["mochila","backpack"],
-    ["paraguas","umbrella"],["traje","suit"],["blusa","blouse"],["chaleco","vest"]]}
+    ["camisa", "shirt"],["falda", "skirt"],["vestido", "dress"],["zapato", "shoe"],["calcetín", "sock"],["sombrero", "hat"],
+    ["abrigo", "coat"],["bufanda", "scarf"],["guante", "glove"],["cinturón", "belt"],["bolsillo", "pocket"],["botón", "button"],
+    ["bota", "boot"],["corbata", "tie"],["pijama", "pajamas"],["gorra", "cap"],["reloj", "watch"],["anillo", "ring"],
+    ["suéter", "sweater"],["uniforme", "uniform"],["collar", "necklace"],["pulsera", "bracelet"],["arete", "earring"],["sandalia", "sandal"],
+    ["bata", "robe"],["mochila", "backpack"],["paraguas", "umbrella"],["traje", "suit"],["blusa", "blouse"],["chaleco", "vest"],
+    ["pantalón", "pants"],["camiseta", "t-shirt"],["chaqueta", "jacket"],["medias", "stockings"],["gafas", "glasses"],["delantal", "apron"],
+    ["impermeable", "raincoat"],["cremallera", "zipper"],["pañuelo", "handkerchief"],["bolso", "purse"],["cartera", "wallet"],["tela", "fabric"],
+    ["lana", "wool"],["algodón", "cotton"],["seda", "silk"],["cuero", "leather"],["manga", "sleeve"],["zapatilla", "slipper"],
+    ["capucha", "hood"],["disfraz", "costume"]]}
 };
 const MIX = {es:"Mezcla",en:"Mix"};
+/* Full-version categories: words are in place, unlocked later */
 const LOCKED = [
-  {id:"viajes",es:"Viajes",en:"Travel"},
-  {id:"verbos",es:"Verbos",en:"Verbs"}
+  {id:"viajes",es:"Viajes",en:"Travel",words:[
+    ["viaje", "trip"],["maleta", "suitcase"],["pasaporte", "passport"],["boleto", "ticket"],["avión", "airplane"],["aeropuerto", "airport"],
+    ["tren", "train"],["estación", "station"],["autobús", "bus"],["barco", "ship"],["hotel", "hotel"],["habitación", "room"],
+    ["reserva", "booking"],["equipaje", "luggage"],["vuelo", "flight"],["aduana", "customs"],["frontera", "border"],["mapa", "map"],
+    ["playa", "beach"],["isla", "island"],["turista", "tourist"],["guía", "guide"],["destino", "destination"],["aventura", "adventure"],
+    ["vacaciones", "vacation"],["crucero", "cruise"],["carretera", "highway"],["gasolina", "gasoline"],["brújula", "compass"],["carpa", "tent"],
+    ["itinerario", "itinerary"],["llegada", "arrival"],["salida", "departure"],["retraso", "delay"],["andén", "platform"],["asiento", "seat"],
+    ["visa", "visa"],["recuerdo", "souvenir"],["paisaje", "scenery"],["excursión", "excursion"],["mochilero", "backpacker"],["alojamiento", "lodging"],
+    ["embajada", "embassy"],["pasajero", "passenger"],["terminal", "terminal"],["maletero", "trunk"],["albergue", "hostel"],["tarifa", "fare"],
+    ["puerto", "harbor"],["muelle", "pier"]]},
+  {id:"verbos",es:"Verbos",en:"Verbs",words:[
+    ["hablar", "to speak"],["comer", "to eat"],["beber", "to drink"],["vivir", "to live"],["correr", "to run"],["caminar", "to walk"],
+    ["saltar", "to jump"],["dormir", "to sleep"],["escribir", "to write"],["leer", "to read"],["escuchar", "to listen"],["mirar", "to look"],
+    ["abrir", "to open"],["cerrar", "to close"],["comprar", "to buy"],["vender", "to sell"],["pagar", "to pay"],["cocinar", "to cook"],
+    ["limpiar", "to clean"],["lavar", "to wash"],["cantar", "to sing"],["bailar", "to dance"],["jugar", "to play"],["trabajar", "to work"],
+    ["estudiar", "to study"],["aprender", "to learn"],["enseñar", "to teach"],["ayudar", "to help"],["buscar", "to search"],["encontrar", "to find"],
+    ["perder", "to lose"],["ganar", "to win"],["llamar", "to call"],["llegar", "to arrive"],["salir", "to leave"],["entrar", "to enter"],
+    ["subir", "to climb"],["bajar", "to descend"],["traer", "to bring"],["llevar", "to carry"],["dar", "to give"],["tomar", "to take"],
+    ["pensar", "to think"],["querer", "to want"],["saber", "to know"],["nadar", "to swim"],["reír", "to laugh"],["llorar", "to cry"],
+    ["esperar", "to wait"],["abrazar", "to hug"]]},
+  {id:"adjetivos",es:"Adjetivos",en:"Adjectives",words:[
+    ["grande", "big"],["pequeño", "small"],["alto", "tall"],["bajo", "low"],["largo", "long"],["corto", "short"],
+    ["ancho", "wide"],["estrecho", "narrow"],["gordo", "fat"],["delgado", "thin"],["fuerte", "strong"],["débil", "weak"],
+    ["rápido", "fast"],["lento", "slow"],["nuevo", "new"],["viejo", "old"],["joven", "young"],["bonito", "pretty"],
+    ["feo", "ugly"],["bueno", "good"],["malo", "bad"],["caliente", "hot"],["frío", "cold"],["limpio", "clean"],
+    ["sucio", "dirty"],["fácil", "easy"],["difícil", "difficult"],["pesado", "heavy"],["ligero", "light"],["duro", "hard"],
+    ["blando", "soft"],["lleno", "full"],["vacío", "empty"],["rico", "rich"],["pobre", "poor"],["feliz", "happy"],
+    ["triste", "sad"],["cansado", "tired"],["enojado", "angry"],["listo", "clever"],["tonto", "silly"],["seco", "dry"],
+    ["mojado", "wet"],["dulce", "sweet"],["amargo", "bitter"],["ruidoso", "loud"],["silencioso", "quiet"],["oscuro", "dark"],
+    ["claro", "bright"],["redondo", "round"]]},
+  {id:"familia",es:"La familia",en:"Family",words:[
+    ["madre", "mother"],["padre", "father"],["hermano", "brother"],["hermana", "sister"],["hijo", "son"],["hija", "daughter"],
+    ["abuelo", "grandfather"],["abuela", "grandmother"],["tío", "uncle"],["tía", "aunt"],["primo", "cousin"],["sobrino", "nephew"],
+    ["sobrina", "niece"],["esposo", "husband"],["esposa", "wife"],["nieto", "grandson"],["nieta", "granddaughter"],["padrino", "godfather"],
+    ["madrina", "godmother"],["gemelo", "twin"],["bebé", "baby"],["niño", "boy"],["niña", "girl"],["hombre", "man"],
+    ["mujer", "woman"],["adulto", "adult"],["anciano", "elder"],["amigo", "friend"],["vecino", "neighbor"],["pareja", "couple"],
+    ["novio", "boyfriend"],["novia", "girlfriend"],["familia", "family"],["pariente", "relative"],["padres", "parents"],["hijos", "children"],
+    ["hermanos", "siblings"],["antepasado", "ancestor"],["huérfano", "orphan"],["viudo", "widower"],["soltero", "single"],["casado", "married"],
+    ["boda", "wedding"],["apellido", "surname"],["ahijado", "godson"],["yerno", "son-in-law"],["prometido", "fiancé"],["hermanastro", "stepbrother"],
+    ["madrastra", "stepmother"],["padrastro", "stepfather"]]},
+  {id:"ciudad",es:"La ciudad",en:"City",words:[
+    ["calle", "street"],["avenida", "avenue"],["plaza", "square"],["parque", "park"],["edificio", "building"],["tienda", "shop"],
+    ["mercado", "market"],["banco", "bank"],["hospital", "hospital"],["escuela", "school"],["iglesia", "church"],["museo", "museum"],
+    ["biblioteca", "library"],["cine", "cinema"],["restaurante", "restaurant"],["panadería", "bakery"],["farmacia", "pharmacy"],["puente", "bridge"],
+    ["esquina", "corner"],["acera", "sidewalk"],["semáforo", "stoplight"],["tráfico", "traffic"],["ruido", "noise"],["humo", "smoke"],
+    ["rascacielos", "skyscraper"],["fuente", "fountain"],["estatua", "statue"],["torre", "tower"],["castillo", "castle"],["barrio", "neighborhood"],
+    ["centro", "downtown"],["suburbio", "suburb"],["alcalde", "mayor"],["ciudadano", "citizen"],["dirección", "address"],["metro", "subway"],
+    ["parada", "stop"],["peatón", "pedestrian"],["cruce", "crossing"],["farola", "streetlight"],["buzón", "mailbox"],["cárcel", "jail"],
+    ["gimnasio", "gym"],["ayuntamiento", "city hall"],["callejón", "alley"],["población", "population"],["catedral", "cathedral"],["monumento", "monument"],
+    ["rotonda", "roundabout"],["cuadra", "block"]]},
+  {id:"naturaleza",es:"La naturaleza",en:"Nature",words:[
+    ["árbol", "tree"],["flor", "flower"],["hoja", "leaf"],["rama", "branch"],["raíz", "root"],["hierba", "grass"],
+    ["bosque", "forest"],["selva", "jungle"],["montaña", "mountain"],["colina", "hill"],["valle", "valley"],["río", "river"],
+    ["lago", "lake"],["mar", "sea"],["océano", "ocean"],["ola", "wave"],["arena", "sand"],["roca", "rock"],
+    ["piedra", "stone"],["cueva", "cave"],["volcán", "volcano"],["desierto", "desert"],["cascada", "waterfall"],["arroyo", "stream"],
+    ["pantano", "swamp"],["campo", "countryside"],["llanura", "plain"],["acantilado", "cliff"],["costa", "coast"],["orilla", "shore"],
+    ["tierra", "soil"],["semilla", "seed"],["rosa", "rose"],["cactus", "cactus"],["musgo", "moss"],["pino", "pine"],
+    ["palmera", "palm tree"],["roble", "oak"],["estrella", "star"],["luna", "moon"],["sol", "sun"],["cielo", "sky"],
+    ["nube", "cloud"],["planeta", "planet"],["fuego", "fire"],["hielo", "ice"],["nieve", "snow"],["aire", "air"],
+    ["lodo", "mud"],["polvo", "dust"]]},
+  {id:"tiempo",es:"El tiempo",en:"Weather & time",words:[
+    ["lluvia", "rain"],["viento", "wind"],["tormenta", "storm"],["trueno", "thunder"],["relámpago", "lightning"],["niebla", "fog"],
+    ["granizo", "hail"],["huracán", "hurricane"],["sequía", "drought"],["inundación", "flood"],["calor", "heat"],["clima", "climate"],
+    ["arcoíris", "rainbow"],["temperatura", "temperature"],["primavera", "spring"],["verano", "summer"],["otoño", "autumn"],["invierno", "winter"],
+    ["lunes", "Monday"],["martes", "Tuesday"],["miércoles", "Wednesday"],["jueves", "Thursday"],["viernes", "Friday"],["sábado", "Saturday"],
+    ["domingo", "Sunday"],["enero", "January"],["febrero", "February"],["marzo", "March"],["abril", "April"],["mayo", "May"],
+    ["junio", "June"],["julio", "July"],["agosto", "August"],["septiembre", "September"],["octubre", "October"],["noviembre", "November"],
+    ["diciembre", "December"],["hoy", "today"],["ayer", "yesterday"],["semana", "week"],["mes", "month"],["año", "year"],
+    ["hora", "hour"],["minuto", "minute"],["segundo", "second"],["día", "day"],["noche", "night"],["tarde", "afternoon"],
+    ["madrugada", "dawn"],["siglo", "century"]]},
+  {id:"trabajo",es:"El trabajo",en:"Work",words:[
+    ["empleo", "job"],["oficina", "office"],["jefe", "boss"],["empleado", "employee"],["compañero", "coworker"],["sueldo", "salary"],
+    ["reunión", "meeting"],["empresa", "company"],["negocio", "business"],["cliente", "customer"],["contrato", "contract"],["entrevista", "interview"],
+    ["currículum", "résumé"],["ascenso", "promotion"],["horario", "schedule"],["turno", "shift"],["gerente", "manager"],["director", "director"],
+    ["secretario", "secretary"],["ingeniero", "engineer"],["médico", "doctor"],["enfermero", "nurse"],["abogado", "lawyer"],["maestro", "teacher"],
+    ["cocinero", "cook"],["camarero", "waiter"],["cajero", "cashier"],["vendedor", "salesman"],["obrero", "laborer"],["albañil", "bricklayer"],
+    ["plomero", "plumber"],["electricista", "electrician"],["mecánico", "mechanic"],["conductor", "driver"],["piloto", "pilot"],["panadero", "baker"],
+    ["carpintero", "carpenter"],["agricultor", "farmer"],["pescador", "fisherman"],["peluquero", "hairdresser"],["dentista", "dentist"],["arquitecto", "architect"],
+    ["contador", "accountant"],["periodista", "journalist"],["policía", "policeman"],["bombero", "firefighter"],["sindicato", "union"],["jubilación", "retirement"],
+    ["despido", "layoff"],["veterinario", "veterinarian"]]},
+  {id:"escuela",es:"La escuela",en:"School",words:[
+    ["aula", "classroom"],["pizarra", "blackboard"],["tiza", "chalk"],["libro", "book"],["cuaderno", "notebook"],["lápiz", "pencil"],
+    ["bolígrafo", "pen"],["goma", "eraser"],["regla", "ruler"],["tijeras", "scissors"],["pegamento", "glue"],["papel", "paper"],
+    ["estudiante", "student"],["profesor", "professor"],["clase", "class"],["lección", "lesson"],["tarea", "homework"],["examen", "exam"],
+    ["nota", "grade"],["pregunta", "question"],["respuesta", "answer"],["palabra", "word"],["frase", "sentence"],["letra", "letter"],
+    ["número", "number"],["historia", "history"],["ciencia", "science"],["matemáticas", "math"],["geografía", "geography"],["idioma", "language"],
+    ["inglés", "English"],["español", "Spanish"],["recreo", "recess"],["universidad", "university"],["diploma", "diploma"],["título", "degree"],
+    ["beca", "scholarship"],["pupitre", "school desk"],["diccionario", "dictionary"],["tema", "topic"],["resumen", "summary"],["ensayo", "essay"],
+    ["error", "mistake"],["calculadora", "calculator"],["laboratorio", "laboratory"],["vocabulario", "vocabulary"],["gramática", "grammar"],["biología", "biology"],
+    ["química", "chemistry"],["física", "physics"]]},
+  {id:"salud",es:"La salud",en:"Health",words:[
+    ["salud", "health"],["enfermo", "sick"],["enfermedad", "illness"],["dolor", "pain"],["fiebre", "fever"],["tos", "cough"],
+    ["gripe", "flu"],["alergia", "allergy"],["herida", "wound"],["medicina", "medicine"],["pastilla", "pill"],["receta", "prescription"],
+    ["vacuna", "vaccine"],["jarabe", "syrup"],["venda", "bandage"],["termómetro", "thermometer"],["jeringa", "syringe"],["clínica", "clinic"],
+    ["ambulancia", "ambulance"],["urgencia", "emergency"],["cirugía", "surgery"],["radiografía", "x-ray"],["vitamina", "vitamin"],["dieta", "diet"],
+    ["ejercicio", "exercise"],["descanso", "rest"],["estrés", "stress"],["mareo", "dizziness"],["náusea", "nausea"],["sano", "healthy"],
+    ["herido", "injured"],["curar", "to heal"],["paciente", "patient"],["remedio", "remedy"],["tratamiento", "treatment"],["síntoma", "symptom"],
+    ["pulso", "pulse"],["respiración", "breathing"],["higiene", "hygiene"],["mascarilla", "mask"],["curita", "band-aid"],["inyección", "injection"],
+    ["esqueleto", "skeleton"],["sudor", "sweat"],["bostezo", "yawn"],["estornudo", "sneeze"],["escalofrío", "chill"],["picazón", "itch"],
+    ["ronquido", "snore"],["sueño", "sleep"]]},
+  {id:"tecnologia",es:"La tecnología",en:"Technology",words:[
+    ["computadora", "computer"],["teléfono", "phone"],["celular", "cellphone"],["pantalla", "screen"],["teclado", "keyboard"],["internet", "internet"],
+    ["mensaje", "message"],["contraseña", "password"],["archivo", "file"],["carpeta", "folder"],["aplicación", "app"],["programa", "program"],
+    ["red", "network"],["enlace", "link"],["página", "page"],["buscador", "search engine"],["usuario", "user"],["batería", "battery"],
+    ["cargador", "charger"],["cable", "cable"],["auriculares", "headphones"],["altavoz", "speaker"],["micrófono", "microphone"],["video", "video"],
+    ["imagen", "image"],["sonido", "sound"],["señal", "signal"],["datos", "data"],["memoria", "memory"],["impresora", "printer"],
+    ["escáner", "scanner"],["robot", "robot"],["código", "code"],["falla", "glitch"],["descargar", "to download"],["guardar", "to save"],
+    ["borrar", "to delete"],["instalar", "to install"],["actualizar", "to update"],["tableta", "tablet"],["portátil", "laptop"],["juego", "game"],
+    ["videojuego", "video game"],["servidor", "server"],["correo", "email"],["sitio", "website"],["cámara", "camera"],["navegador", "browser"],
+    ["virus", "virus"],["píxel", "pixel"]]},
+  {id:"deportes",es:"Los deportes",en:"Sports",words:[
+    ["fútbol", "soccer"],["baloncesto", "basketball"],["béisbol", "baseball"],["tenis", "tennis"],["natación", "swimming"],["carrera", "race"],
+    ["ciclismo", "cycling"],["golf", "golf"],["boxeo", "boxing"],["voleibol", "volleyball"],["atletismo", "athletics"],["pelota", "ball"],
+    ["portería", "goalpost"],["cancha", "court"],["estadio", "stadium"],["equipo", "team"],["jugador", "player"],["entrenador", "coach"],
+    ["árbitro", "referee"],["partido", "match"],["gol", "goal"],["campeón", "champion"],["medalla", "medal"],["trofeo", "trophy"],
+    ["victoria", "victory"],["derrota", "defeat"],["empate", "draw"],["punto", "point"],["práctica", "practice"],["raqueta", "racket"],
+    ["casco", "helmet"],["patineta", "skateboard"],["bicicleta", "bicycle"],["esquí", "ski"],["surf", "surfing"],["pesca", "fishing"],
+    ["caza", "hunting"],["escalada", "climbing"],["yoga", "yoga"],["gimnasia", "gymnastics"],["maratón", "marathon"],["salto", "leap"],
+    ["lanzamiento", "throw"],["meta", "finish line"],["pista", "track"],["piscina", "pool"],["vestuario", "locker room"],["silbato", "whistle"],
+    ["aficionado", "supporter"],["jonrón", "home run"]]},
+  {id:"musica",es:"Música y arte",en:"Music & art",words:[
+    ["música", "music"],["canción", "song"],["cantante", "singer"],["guitarra", "guitar"],["piano", "piano"],["violín", "violin"],
+    ["flauta", "flute"],["trompeta", "trumpet"],["tambor", "drum"],["concierto", "concert"],["banda", "band"],["orquesta", "orchestra"],
+    ["ritmo", "rhythm"],["melodía", "melody"],["estribillo", "chorus"],["baile", "dance"],["pintura", "painting"],["pintor", "painter"],
+    ["pincel", "brush"],["lienzo", "canvas"],["escultura", "sculpture"],["dibujo", "drawing"],["teatro", "theater"],["actor", "actor"],
+    ["actriz", "actress"],["escenario", "stage"],["obra", "play"],["película", "movie"],["novela", "novel"],["poema", "poem"],
+    ["poeta", "poet"],["escritor", "writer"],["galería", "gallery"],["fotografía", "photography"],["color", "color"],["aplauso", "applause"],
+    ["radio", "radio"],["disco", "record"],["coro", "choir"],["ópera", "opera"],["entrada", "admission"],["artista", "artist"],
+    ["arpa", "harp"],["saxofón", "saxophone"],["acordeón", "accordion"],["compositor", "composer"],["sinfonía", "symphony"],["artesanía", "crafts"],
+    ["mural", "mural"],["público", "audience"]]},
+  {id:"emociones",es:"Las emociones",en:"Emotions",words:[
+    ["alegría", "joy"],["tristeza", "sadness"],["miedo", "fear"],["ira", "anger"],["sorpresa", "surprise"],["asco", "disgust"],
+    ["amor", "love"],["odio", "hate"],["esperanza", "hope"],["orgullo", "pride"],["vergüenza", "shame"],["culpa", "guilt"],
+    ["celos", "jealousy"],["envidia", "envy"],["soledad", "loneliness"],["paz", "peace"],["calma", "calm"],["nervios", "nerves"],
+    ["ansiedad", "anxiety"],["felicidad", "happiness"],["preocupación", "worry"],["confianza", "trust"],["paciencia", "patience"],["valentía", "courage"],
+    ["cariño", "affection"],["ternura", "tenderness"],["risa", "laughter"],["llanto", "weeping"],["sonrisa", "smile"],["abrazo", "hug"],
+    ["beso", "kiss"],["lágrima", "tear"],["suspiro", "sigh"],["grito", "scream"],["aburrimiento", "boredom"],["curiosidad", "curiosity"],
+    ["gratitud", "gratitude"],["entusiasmo", "enthusiasm"],["nostalgia", "nostalgia"],["melancolía", "melancholy"],["impaciencia", "impatience"],["rabia", "rage"],
+    ["ánimo", "spirit"],["alivio", "relief"],["decepción", "letdown"],["compasión", "compassion"],["amistad", "friendship"],["timidez", "shyness"],
+    ["deseo", "desire"],["susto", "fright"]]},
+  {id:"compras",es:"Compras y dinero",en:"Shopping & money",words:[
+    ["dinero", "money"],["precio", "price"],["moneda", "coin"],["billete", "banknote"],["cambio", "change"],["factura", "invoice"],
+    ["recibo", "receipt"],["oferta", "sale"],["descuento", "discount"],["barato", "cheap"],["caro", "expensive"],["gratis", "free"],
+    ["tarjeta", "card"],["efectivo", "cash"],["cuenta", "bill"],["ahorro", "savings"],["deuda", "debt"],["préstamo", "loan"],
+    ["interés", "interest"],["impuesto", "tax"],["propina", "tip"],["carrito", "cart"],["bolsa", "bag"],["caja", "register"],
+    ["pedido", "order"],["entrega", "delivery"],["envío", "shipping"],["devolución", "refund"],["garantía", "warranty"],["comprador", "buyer"],
+    ["regalo", "gift"],["etiqueta", "tag"],["talla", "size"],["marca", "brand"],["mostrador", "counter"],["vitrina", "showcase"],
+    ["lista", "list"],["paquete", "package"],["cantidad", "quantity"],["total", "total"],["gasto", "expense"],["ingreso", "income"],
+    ["presupuesto", "budget"],["pago", "payment"],["cobro", "charge"],["fila", "queue"],["mayorista", "wholesaler"],["cheque", "check"],
+    ["rebaja", "markdown"],["ganga", "bargain"]]}
 ];
 const LEVELS = [
   {pairs:6,onScreen:4,speed:[12,20],fuse:24,decoys:0},
@@ -372,7 +538,7 @@ const UI = {
     r2h:"Beat the ring", r2:"Each pair bursts when its ring runs out.",
     r3h:"3 levels", r3:"Faster bubbles, less time, more on screen.",
     r4h:"Decoys", r4:"From level 2, some English words have no match.",
-    notPlayed:"Not played yet", best:"Best", fullVersion:"Full version",
+    notPlayed:"Not played yet", best:"Best", fullVersion:"Full version", lockedSection:"Full version · 750 more words",
     level:"Level", of:"of", left:"left",
     lvl1:"Match all 6 pairs", lvl2:"Faster, and watch for decoys", lvl3:"Last level. Less time.",
     tooSlow:"Too slow", decoy:"Decoy!", trayEmpty:"Matched pairs land here",
@@ -387,7 +553,7 @@ const UI = {
     q2:"Would you play this again tomorrow?", q3:"Would you pay $2 to unlock more categories?",
     yes:"Yes", maybe:"Maybe", no:"No", copy:"Copy my answers",
     copied:"Copied. Paste it in a message.", copyManual:"Select all and copy the text below.", copyLabel:"Your answers to copy",
-    sheetBody:"This category is in the full version, along with more to come.",
+    sheetBody:"This category is part of the full version: 15 more categories and 750 more words.",
     sheetAsk:"Would you unlock all categories for $1.99?", close:"Close",
     sound:"Sound on", soundOff:"Sound off", spanish:"Spanish", english:"English",
     livesAria:n=>n+(n===1?" life":" lives")
@@ -400,7 +566,7 @@ const UI = {
     r2h:"Gana al anillo", r2:"Cada pareja explota cuando se acaba su anillo.",
     r3h:"3 niveles", r3:"Más rápido, menos tiempo, más burbujas.",
     r4h:"Trampas", r4:"Desde el nivel 2, algunas palabras en español no tienen pareja.",
-    notPlayed:"Sin jugar", best:"Récord", fullVersion:"Versión completa",
+    notPlayed:"Sin jugar", best:"Récord", fullVersion:"Versión completa", lockedSection:"Versión completa · 750 palabras más",
     level:"Nivel", of:"de", left:"quedan",
     lvl1:"Encuentra las 6 parejas", lvl2:"Más rápido, y cuidado con las trampas", lvl3:"Último nivel. Menos tiempo.",
     tooSlow:"Muy lento", decoy:"¡Trampa!", trayEmpty:"Aquí aparecen tus parejas",
@@ -415,7 +581,7 @@ const UI = {
     q2:"¿Volverías a jugar mañana?", q3:"¿Pagarías $2 por más categorías?",
     yes:"Sí", maybe:"Quizás", no:"No", copy:"Copiar mis respuestas",
     copied:"Copiado. Pégalo en un mensaje.", copyManual:"Selecciona todo y copia el texto de abajo.", copyLabel:"Tus respuestas para copiar",
-    sheetBody:"Esta categoría está en la versión completa, con más por venir.",
+    sheetBody:"Esta categoría es parte de la versión completa: 15 categorías y 750 palabras más.",
     sheetAsk:"¿Desbloquearías todas las categorías por $1.99?", close:"Cerrar",
     sound:"Sonido activado", soundOff:"Sonido desactivado", spanish:"Español", english:"Inglés",
     livesAria:n=>n+(n===1?" vida":" vidas")
@@ -503,7 +669,7 @@ function renderCats(){
     const b=document.createElement("button"); b.className="cat "+cls;
     b.innerHTML='<span class="deco" aria-hidden="true"></span><span class="big"></span><span class="small"></span><span class="best"></span>';
     const big=b.querySelector(".big"), small=b.querySelector(".small");
-    big.textContent=names[tg]; big.lang=tg; small.textContent=names[speaks]; small.lang=speaks;
+    big.textContent=names[tg]; big.lang=tg; const L=names[tg].length; if(L>14) big.classList.add("xlong"); else if(L>10) big.classList.add("long"); small.textContent=names[speaks]; small.lang=speaks;
     const best=store.best[bestKey(id)]; const bl=b.querySelector(".best");
     if(cls==="locked") bl.textContent=t("fullVersion");
     else if(best){ bl.textContent=t("best")+" "; const s=document.createElement("b"); s.textContent=best.toLocaleString(); bl.appendChild(s); }
@@ -512,6 +678,7 @@ function renderCats(){
   };
   for(const id in CATS) make("",id,CATS[id],()=>start(id));
   make("mix","mix",MIX,()=>start("mix"));
+  const sec=document.createElement("p");sec.className="section-label cats-sec";sec.textContent=t("lockedSection");wrap.appendChild(sec);
   LOCKED.forEach(l=>{
     const b=make("locked",l.id,l,()=>openSheet(l));
     const p=document.createElement("span");p.className="pro";p.textContent="FULL";b.appendChild(p);
